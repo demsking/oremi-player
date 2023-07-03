@@ -1,0 +1,14 @@
+version: '2.6'
+services:
+  player:
+    build: .
+    image: oremi-player:1.0.0
+    tty: true
+    volumes:
+      - ~/.local/mobidy/data:/var/lib/mopidy/data
+      - ~/.cache/mobidy:/var/lib/mopidy/cache
+      - ~/Music/:/media
+      - /run/user/1000/pulse:/run/user/1000/pulse
+    ports:
+      - 6600:6600 # MPD port
+      - 5216:5216 # HTTP port
