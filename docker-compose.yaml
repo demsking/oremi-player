@@ -4,11 +4,16 @@ services:
     build: .
     image: oremi-player:1.0.0
     tty: true
+    privileged: true
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /run/user/1000/pulse:/run/user/1000/pulse
+      - ~/.local/snapserver:/var/lib/snapserver
       - ~/.local/mobidy/data:/var/lib/mopidy/data
       - ~/.cache/mobidy:/var/lib/mopidy/cache
       - ~/Music/:/media
-      - /run/user/1000/pulse:/run/user/1000/pulse
     ports:
-      - 6600:6600 # MPD port
-      - 5216:5216 # HTTP port
+      - 36680:36680
+      - 31780:31780
+      - 31705:31705
+      - 31704:31704

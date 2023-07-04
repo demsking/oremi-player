@@ -1,23 +1,19 @@
-FROM debian:11
+FROM alpine:3.18.2
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN mkdir -p /etc/apt/keyrings \
-  && apt-get update \
-  && apt-get install -y curl \
-  && curl -o /etc/apt/keyrings/mopidy-archive-keyring.gpg -L https://apt.mopidy.com/mopidy.gpg \
-  && curl -o /etc/apt/sources.list.d/mopidy.list -L https://apt.mopidy.com/bullseye.list \
-  && apt-get update \
-  && apt-get install -y --no-install-recommends \
+RUN apk add --no-cache --upgrade \
+    snapcast \
     mopidy \
-    python3-pip \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-ugly \
-    gstreamer1.0-tools \
-    gstreamer1.0-alsa \
-  && apt-get remove -y curl \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    python3 \
+    gstreamer \
+    supervisor \
+  && python3 -m ensurepip
+
+RUN addgroup -S oremi \
+  && adduser -S oremi -u 1000 -G oremi \
+  && chown -R oremi /var/lib/mopidy
+
+USER oremi
+WORKDIR /home/oremi
 
 RUN python3 -m pip install \
   Mopidy-InternetArchive \
@@ -25,21 +21,23 @@ RUN python3 -m pip install \
   Mopidy-Podcast \
   Mopidy-SoundCloud \
   Mopidy-TuneIn \
-  Mopidy-Iris \
-  Mopidy-MPD
+  Mopidy-Iris
 
-RUN useradd -ms /bin/bash oremi \
-  && gpasswd -a oremi audio \
-  && chown -R oremi /var/lib/mopidy
+COPY pulse-client.conf /etc/pulse/client.conf
+COPY mopidy.conf /oremi/mopidy.conf
+COPY snapserver.conf /oremi/snapserver.conf
+COPY supervisord.conf /etc/supervisord.conf
 
-ADD pulse-client.conf /etc/pulse/client.conf
-ADD mopidy.conf /oremi/mopidy.conf
+# Mopidy port
+EXPOSE 36680
 
-USER oremi
-WORKDIR /home/oremi
+# SnapCast HTTP port
+EXPOSE 31780
 
-EXPOSE 6600
-EXPOSE 6680
-EXPOSE 6681
+# SnapCast TCP port
+EXPOSE 31705
 
-ENTRYPOINT ["mopidy", "--config", "/oremi/mopidy.conf:/etc/mopidy.conf"]
+# SnapCast Stream port
+EXPOSE 31704
+
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
