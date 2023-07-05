@@ -11,12 +11,12 @@ WORKDIR /home/oremi
 COPY snapserver.conf /oremi/snapserver.conf
 
 # Snapcast HTTP port
-EXPOSE 31780
+EXPOSE 1780
 
 # Snapcast TCP port
-EXPOSE 31705
+EXPOSE 1705
 
 # Snapcast Stream port
-EXPOSE 31704
+EXPOSE 1704
 
 ENTRYPOINT ["/usr/bin/snapserver", "-c", "/oremi/snapserver.conf"]

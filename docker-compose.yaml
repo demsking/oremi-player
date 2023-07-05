@@ -3,22 +3,21 @@ services:
   player:
     tty: true
     build:
-      context: .
-      dockerfile: player.Dockerfile
+      context: ./player
     image: player
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /run/user/1000/pulse:/run/user/1000/pulse
       - ~/.local/oremi/player/data:/var/lib/mopidy/data
+      - ~/.local/oremi/player/config:/var/lib/mopidy/config
       - ~/.cache/oremi/player/cache:/var/lib/mopidy/cache
       - ~/Media/:/media
     ports:
-      - 56680:36680
+      - 16680:6680
   snapcast-player:
     tty: true
     build:
-      context: .
-      dockerfile: player.Dockerfile
+      context: player
     image: player
     environment:
       ENABLE_SNAPCAST: 'true'
@@ -27,21 +26,33 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /run/user/1000/pulse:/run/user/1000/pulse
       - ~/.local/oremi/snapcast-player/data:/var/lib/mopidy/data
+      - ~/.local/oremi/snapcast-player/config:/var/lib/mopidy/config
       - ~/.cache/oremi/snapcast-player/cache:/var/lib/mopidy/cache
       - ~/Media/:/media
     ports:
-      - 46680:36680
-  snapcast:
-    tty: true
+      - 26680:6680
+  snapserver:
     build:
-      context: .
-      dockerfile: snapcast.Dockerfile
-    image: snapcast
+      context: snapserver
+    image: snapserver
     volumes:
       - /tmp/snapfifo:/tmp/snapfifo
       - /etc/localtime:/etc/localtime:ro
       - ~/.local/oremi/snapserver:/var/lib/snapserver
     ports:
-      - 41705:31705
-      - 41704:31704
-      - 41780:31780
+      - 21705:1705
+      - 21704:1704
+      - 21780:1780
+  snapclient:
+    build:
+      context: snapclient
+    image: snapclient
+    privileged: true
+    hostname: 'Oremi Engine'
+    environment:
+      SNAPCAST_HOST: snapserver
+      SNAPCAST_PORT: 1704
+      SNAPCAST_DEVICE: sysdefault
+    volumes:
+      - /dev/snd:/dev/snd
+      - /etc/localtime:/etc/localtime:ro
