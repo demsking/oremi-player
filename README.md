@@ -13,9 +13,10 @@ preconfigured for the [Oremi Personal Assistant](https://gitlab.com/demsking/ore
 ```sh
 docker run -d \
   --name oremi-player \
-  -p 36680:36680 \
+  -p 6680:6680 \
   -v ~/Music/:/media \
   -v ~/.local/mopidy/data:/var/lib/mopidy/data \
+  -v ~/.local/mopidy/config:/var/lib/mopidy/config \
   -v ~/.cache/mopidy/cache:/var/lib/mopidy/cache \
   -v /run/user/1000/pulse:/run/user/1000/pulse \
   -v /etc/localtime:/etc/localtime:ro \
@@ -24,7 +25,7 @@ docker run -d \
 
 **URLs**
 
-- Mopidy: http://localhost:36680
+- Mopidy: http://localhost:6680
 
 ## Start Oremi Player Server with Snapcast
 
@@ -46,12 +47,13 @@ docker run -d \
       volumes:
         - ~/Music/:/media
         - ~/.local/player/data:/var/lib/mopidy/data
+        - ~/.local/player/config:/var/lib/mopidy/config
         - ~/.cache/player/cache:/var/lib/mopidy/cache
         - /run/user/1000/pulse:/run/user/1000/pulse
         - /etc/localtime:/etc/localtime:ro
         - /tmp/snapfifo:/tmp/snapfifo
       ports:
-        - 36680:36680
+        - 6680:6680
     snapserver:
       image: demsking/oremi-snapserver
       volumes:
@@ -59,9 +61,19 @@ docker run -d \
         - /etc/localtime:/etc/localtime:ro
         - /tmp/snapfifo:/tmp/snapfifo
       ports:
-        - 31705:31705
-        - 31704:31704
-        - 31780:31780
+        - 1705:1705
+        - 1704:1704
+        - 1780:1780
+    snapclient:
+      image: demsking/oremi-snapclient
+      privileged: true
+      environment:
+        SNAPCAST_HOST: snapserver
+        SNAPCAST_PORT: 1704
+        SNAPCAST_DEVICE: sysdefault
+      volumes:
+        - /dev/snd:/dev/snd
+        - /etc/localtime:/etc/localtime:ro
   ```
 
 3. Run Docker Compose
@@ -72,8 +84,8 @@ docker run -d \
 
 **URLs**
 
-- Mopidy: http://localhost:36680
-- Snapweb: http://localhost:31780
+- Mopidy: http://localhost:6680
+- Snapweb: http://localhost:1780
 
 ## License
 
