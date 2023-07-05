@@ -1,11 +1,11 @@
 FROM alpine:3.18.2
 
+ENV ENABLE_SNAPCAST=false
+
 RUN apk add --no-cache --upgrade \
-    snapcast \
     mopidy \
     python3 \
     gstreamer \
-    supervisor \
   && python3 -m ensurepip
 
 RUN addgroup -S oremi \
@@ -25,19 +25,10 @@ RUN python3 -m pip install \
 
 COPY pulse-client.conf /etc/pulse/client.conf
 COPY mopidy.conf /oremi/mopidy.conf
-COPY snapserver.conf /oremi/snapserver.conf
-COPY supervisord.conf /etc/supervisord.conf
+COPY mopidy_snapcast.conf /oremi/mopidy_snapcast.conf
+COPY entrypoint.sh /oremi/entrypoint.sh
 
 # Mopidy port
 EXPOSE 36680
 
-# SnapCast HTTP port
-EXPOSE 31780
-
-# SnapCast TCP port
-EXPOSE 31705
-
-# SnapCast Stream port
-EXPOSE 31704
-
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+ENTRYPOINT ["/oremi/entrypoint.sh"]
