@@ -1,4 +1,4 @@
-IMAGE_VERSION := 1.4.0
+IMAGE_VERSION := 1.4.1
 IMAGE_PLAYER_NAME := demsking/oremi-player
 IMAGE_SNAPCLIENT_NAME := demsking/oremi-snapclient
 IMAGE_SNAPSERVER_NAME := demsking/oremi-snapserver
@@ -14,12 +14,12 @@ build-player: $(PLAYER_FILES)
 		&& docker build player -t $(IMAGE_PLAYER_NAME):latest
 
 build-snapclient: $(SNAPCLIENT_FILES)
-	docker build player -t $(IMAGE_SNAPCLIENT_NAME):$(IMAGE_VERSION) \
-		&& docker build player -t $(IMAGE_SNAPCLIENT_NAME):latest
+	docker build snapclient -t $(IMAGE_SNAPCLIENT_NAME):$(IMAGE_VERSION) \
+		&& docker build snapclient -t $(IMAGE_SNAPCLIENT_NAME):latest
 
 build-snapserver: $(SNAPSERVER_FILES)
-	docker build player -t $(IMAGE_SNAPSERVER_NAME):$(IMAGE_VERSION) \
-		&& docker build player -t $(IMAGE_SNAPSERVER_NAME):latest
+	docker build snapserver -t $(IMAGE_SNAPSERVER_NAME):$(IMAGE_VERSION) \
+		&& docker build snapserver -t $(IMAGE_SNAPSERVER_NAME):latest
 
 build-images: build-player build-snapclient build-snapserver
 
