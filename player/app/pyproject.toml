@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "oremi-player"
+version = "1.0.0"
+description = ""
+authors = ["Sébastien Demanou <demsking@gmail.com>"]
+
+include = [
+  "server",
+]
+
+packages = [
+  { include = "player" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.11.4"
+websockets = "^11.0.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+oremi-player = 'player:start'

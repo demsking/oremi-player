@@ -1,4 +1,4 @@
-IMAGE_VERSION := 1.4.1
+IMAGE_VERSION := 1.5.0
 IMAGE_PLAYER_NAME := demsking/oremi-player
 IMAGE_SNAPCLIENT_NAME := demsking/oremi-snapclient
 IMAGE_SNAPSERVER_NAME := demsking/oremi-snapserver
@@ -7,7 +7,10 @@ PLAYER_FILES := $(wildcard player/*)
 SNAPCLIENT_FILES := $(wildcard snapclient/*)
 SNAPSERVER_FILES := $(wildcard snapserver/*)
 
-.PHONY: build-player build-snapclient build-snapserver build-images publish-images
+.PHONY: all clean test build-player build-snapclient build-snapserver build-images lint publish-images
+
+lint:
+	pre-commit run --all-files
 
 build-player: $(PLAYER_FILES)
 	docker build player -t $(IMAGE_PLAYER_NAME):$(IMAGE_VERSION) \
