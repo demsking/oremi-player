@@ -83,3 +83,4 @@ publish-images: build-images
 	docker push $(IMAGE_SNAPCLIENT_NAME):latest
 	docker push $(IMAGE_SNAPSERVER_NAME):$(IMAGE_VERSION)
 	docker push $(IMAGE_SNAPSERVER_NAME):latest
+	git push --tags origin main
