@@ -202,25 +202,26 @@ public:
     if (params.is_array() && params.size() > 0) {
       // Create a media list
       VLC::MediaList mediaList(m_vlc_instance);
-      static std::vector<std::tuple<libvlc_meta_t, std::string>> items = {
+      static std::vector<std::tuple<libvlc_meta_t, std::string>> meta = {
         { libvlc_meta_Title, "title" },
         { libvlc_meta_Description, "description" },
         { libvlc_meta_Album, "album_title" },
-        { libvlc_meta_Artist, "album_artist" },
+        { libvlc_meta_AlbumArtist, "album_artist" },
+        { libvlc_meta_Artist, "artist_name" },
         { libvlc_meta_ArtworkURL, "artwork_url" },
       };
 
       // Add each media file to the list
       for (const auto& param : params) {
-        if (param.is_object() && param.contains("media_url")) {
+        if (param.is_object() && param.contains("media_url") && !param["media_url"].is_null()) {
           std::string media_url = param["media_url"];
           VLC::Media media(m_vlc_instance, media_url, VLC::Media::FromLocation);
 
-          for (const auto& item : items) {
+          for (const auto& item : meta) {
             libvlc_meta_t type = std::get<0>(item);
             std::string field = std::get<1>(item);
 
-            if (param.contains(field)) {
+            if (param.contains(field) && !param[field].is_null()) {
               media.setMeta(type, param[field]);
             }
           }
@@ -343,16 +344,20 @@ public:
   JSON get_metadata(const VLC::MediaPtr &media) {
     std::string media_path = media->mrl();
     std::string media_title = media->meta(libvlc_meta_Title);
-    std::string media_artist = media->meta(libvlc_meta_Artist);
-    std::string media_album = media->meta(libvlc_meta_Album);
+    std::string media_description = media->meta(libvlc_meta_Description);
+    std::string media_artist_name = media->meta(libvlc_meta_Artist);
+    std::string media_album_title = media->meta(libvlc_meta_Album);
+    std::string media_album_artist = media->meta(libvlc_meta_AlbumArtist);
     std::string media_artwork_url = media->meta(libvlc_meta_ArtworkURL);
     libvlc_time_t media_length = media->duration();
 
     return {
-      { "media_url", media_path },
       { "title", media_title },
-      { "artist", media_artist },
-      { "album", media_album },
+      { "media_url", media_path },
+      { "description", media_description },
+      { "artist_name", media_artist_name },
+      { "album_title", media_album_title },
+      { "album_artist", media_album_artist },
       { "artwork_url", media_artwork_url },
       { "length", static_cast<int64_t>(media_length) },
     };

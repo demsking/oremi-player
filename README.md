@@ -93,20 +93,6 @@ end reached, and encountered error occur.
 
 The following methods are available on the server:
 
-- `Open`
-  Opens a media list.
-
-  **Parameters**
-  - `title` (string): The title of the media.
-  - `description` (string): The description of the media.
-  - `media_url` (string): The URL to the media. This parameter is mandatory.
-  - `artwork_url` (string): The URL to the artwork.
-  - `album_artist` (string): The album artist.
-  - `artwork_url` (string): The URL to the artwork.
-
-  **Return Value**
-  - (string): `"OK"` if the method was called successfully.
-
 - `Play`
   Starts playback of the media player.
 
@@ -165,22 +151,35 @@ The following methods are available on the server:
   Gets the state of the media player.
 
   **Return Value**
-  - (string): The current state of the media player. Possible values are:
-    - `playing`
-    - `paused`
-    - `stopped`
+  - (string): The current state of the media player. Possible values are: `playing`, `paused`, `stopped`
 
 - `Metadata`
   Gets the metadata of the current media.
 
   **Return Value**
   - (object or null): An object containing metadata for the current media if metadata is available, otherwise `null`. The object has the following properties:
-    - `album` (string): The album name.
-    - `artist` (string): The artist name.
-    - `artwork_url` (string): The URL to the artwork.
-    - `length` (int): The length of the media in seconds.
-    - `media_url` (string): The URL to the media.
     - `title` (string): The title of the media.
+    - `description` (string): The description of the media.
+    - `media_url` (string): The URL to the media. This parameter is mandatory.
+    - `artwork_url` (string): The URL to the artwork.
+    - `album_title` (string): The title of the album.
+    - `album_artist` (string): The album artist.
+    - `artist_name` (string): The name of the artist.
+
+- `Open`
+  Opens a media list.
+
+  **Parameters**
+  - `title` (string): The title of the media.
+  - `description` (string): The description of the media.
+  - `media_url` (string): The URL to the media. This parameter is mandatory.
+  - `artwork_url` (string): The URL to the artwork.
+  - `album_title` (string): The title of the album.
+  - `album_artist` (string): The album artist.
+  - `artist_name` (string): The name of the artist.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
 
 - `SetMute`
   Sets whether or not the media player is muted.
