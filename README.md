@@ -2,7 +2,7 @@
 
 [![Buy me a beer](https://img.shields.io/badge/Buy%20me-a%20beer-1f425f.svg)](https://www.buymeacoffee.com/demsking)
 
-Oremi Player Server is a [Mopidy](https://mopidy.com/) and 
+Oremi Player Server is a [Mopidy](https://mopidy.com/) and
 [Snapcast](https://github.com/badaix/snapcast) servers
 preconfigured for the [Oremi Personal Assistant](https://gitlab.com/demsking/oremi).
 
@@ -13,19 +13,11 @@ preconfigured for the [Oremi Personal Assistant](https://gitlab.com/demsking/ore
 ```sh
 docker run -d \
   --name oremi-player \
-  -p 6680:6680 \
-  -v ~/Music/:/media \
-  -v ~/.local/mopidy/data:/var/lib/mopidy/data \
-  -v ~/.local/mopidy/config:/var/lib/mopidy/config \
-  -v ~/.cache/mopidy/cache:/var/lib/mopidy/cache \
+  -p 3765:3765 \
   -v /run/user/1000/pulse:/run/user/1000/pulse \
   -v /etc/localtime:/etc/localtime:ro \
   demsking/oremi-player
 ```
-
-**URLs**
-
-- Mopidy: http://localhost:6680
 
 ## Start Oremi Player Server with Snapcast
 
@@ -45,10 +37,6 @@ docker run -d \
       environment:
         ENABLE_SNAPCAST: 'true'
       volumes:
-        - ~/Music/:/media
-        - ~/.local/player/data:/var/lib/mopidy/data
-        - ~/.local/player/config:/var/lib/mopidy/config
-        - ~/.cache/player/cache:/var/lib/mopidy/cache
         - /run/user/1000/pulse:/run/user/1000/pulse
         - /etc/localtime:/etc/localtime:ro
         - /tmp/snapfifo:/tmp/snapfifo
@@ -84,8 +72,206 @@ docker run -d \
 
 **URLs**
 
-- Mopidy: http://localhost:6680
 - Snapweb: http://localhost:1780
+
+## Oremi Player WebSocket JSON-RPC API
+
+This section describes the JSON-RPC API of the Oremi Player WebSocket
+JSON-RPC API.
+
+## Overview
+
+The Oremi Player server provides a JSON-RPC 2.0 API for controlling a
+Oremi Player instance through a websocket connection.
+Clients can send JSON-RPC 2.0 requests to the server to perform actions
+such as opening a media file, playing, pausing, stopping, setting the
+volume, and setting the position. The server sends JSON-RPC 2.0
+notifications to clients when events such as playing, paused, stopped,
+end reached, and encountered error occur.
+
+## Methods
+
+The following methods are available on the server:
+
+- `Open`
+  Opens a media list.
+
+  **Parameters**
+  - `title` (string): The title of the media.
+  - `description` (string): The description of the media.
+  - `media_url` (string): The URL to the media. This parameter is mandatory.
+  - `artwork_url` (string): The URL to the artwork.
+  - `album_artist` (string): The album artist.
+  - `artwork_url` (string): The URL to the artwork.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
+
+- `Play`
+  Starts playback of the media player.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
+
+- `Pause`
+  Pauses playback of the media player.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
+
+- `Stop`
+  Stops playback of the media player.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
+
+- `Next`
+  Skips to the next item in the media list.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
+
+- `Previous`
+  Skips to the previous item in the media list.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
+
+- `Rate`
+  Gets the playback rate of the media player.
+
+  **Return Value**
+  - (float): The current playback rate of the media player.
+
+- `Position`
+  Gets the position of the media player.
+
+  **Return Value**
+  - (float): The current position of the media player.
+
+- `Volume`
+  Gets the volume of the media player.
+
+  **Return Value**
+  - (float): The current volume of the media player.
+
+- `Seekable`
+  Gets whether or not the media player is seekable.
+
+  **Return Value**
+  - (bool): Whether or not the media player is seekable.
+
+- `State`
+  Gets the state of the media player.
+
+  **Return Value**
+  - (string): The current state of the media player. Possible values are:
+    - `playing`
+    - `paused`
+    - `stopped`
+
+- `Metadata`
+  Gets the metadata of the current media.
+
+  **Return Value**
+  - (object or null): An object containing metadata for the current media if metadata is available, otherwise `null`. The object has the following properties:
+    - `album` (string): The album name.
+    - `artist` (string): The artist name.
+    - `artwork_url` (string): The URL to the artwork.
+    - `length` (int): The length of the media in seconds.
+    - `media_url` (string): The URL to the media.
+    - `title` (string): The title of the media.
+
+- `SetMute`
+  Sets whether or not the media player is muted.
+
+  **Parameters**
+  - `muted` (bool): Whether or not to mute the media player.
+
+   **Return Value**
+   - (string): `"OK"` if the method was called successfully.
+
+- `SetVolume`
+   Sets the volume of the media player.
+
+   **Parameters**
+   - `volume` (float): The new volume of the media player.
+
+   **Return Value**
+   - (string): `"OK"` if the method was called successfully.
+
+- `SetPosition`
+  Sets the position of the media player.
+
+  **Parameters**
+  - `position` (float): The new position of the media player.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
+
+- `SetRate`
+  Sets the playback rate of the media player.
+
+  **Parameters**
+  - `rate` (float): The new playback rate of the media player.
+
+  **Return Value**
+  - (string): `"OK"` if the method was called successfully.
+
+## Notifications
+
+The following notifications are sent by the server:
+
+- `StateChange`
+  Indicates that the state of the media player has changed.
+
+  **Parameters**
+  - `state` (string): The new state of the media player.
+    Possible values are:
+      - `playing`
+      - `paused`
+      - `stopped`
+
+- `PositionChange`
+  Indicates that the position of the media player has changed.
+
+  **Parameters**
+  - `position` (float): The new position of the media player.
+
+- `SeekableChange`
+  Indicates that the seekable status of the media player has changed.
+
+  **Parameters**
+  - `seekable` (bool): The new seekable status of the media player.
+
+- `MuteChange`
+  Indicates that the mute status of the media player has changed.
+
+  **Parameters**
+  - `muted` (bool): The new mute status of the media player.
+
+- `VolumeChange`
+  Indicates that the volume of the media player has changed.
+
+  **Parameters**
+  - `volume` (float): The new volume of the media player.
+
+- `TimeChange`
+  Indicates that the time of the media player has changed.
+
+  **Parameters**
+  - `time` (int64_t): The new time of the media player.
+
+- `MetadataChange`
+  Indicates that the metadata of the media player has changed.
+
+  **Parameters**
+  - `album` (string): The album name.
+  - `artist` (string): The artist name.
+  - `artwork_url` (string): The URL to the artwork.
+  - `length` (int): The length of the media in seconds.
+  - `media_url` (string): The URL to the media.
+  - `title` (string): The title of the media.
 
 ## License
 

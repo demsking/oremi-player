@@ -1,20 +1,68 @@
-IMAGE_VERSION := 1.5.0
+APP_NAME = Oremi Player
+APP_VERSION = 1.0.0
+
+IMAGE_VERSION := 1.4.1
 IMAGE_PLAYER_NAME := demsking/oremi-player
 IMAGE_SNAPCLIENT_NAME := demsking/oremi-snapclient
 IMAGE_SNAPSERVER_NAME := demsking/oremi-snapserver
 
-PLAYER_FILES := $(wildcard player/*)
+PLAYER_FILES := $(wildcard src/* player/*)
 SNAPCLIENT_FILES := $(wildcard snapclient/*)
 SNAPSERVER_FILES := $(wildcard snapserver/*)
 
-.PHONY: all clean test build-player build-snapclient build-snapserver build-images lint publish-images
+LIBVLCPP_VERSION = master
+LIBVLCPP_FILENAME = libvlcpp-$(LIBVLCPP_VERSION)
+LIBVLCPP_URL = https://code.videolan.org/videolan/libvlcpp/-/archive/$(LIBVLCPP_VERSION)/$(LIBVLCPP_FILENAME).tar.gz
 
-lint:
-	pre-commit run --all-files
+SPDLOG_VERSION = 1.12.0
+SPDLOG_FILENAME = spdlog-$(SPDLOG_VERSION)
+SPDLOG_URL = https://github.com/gabime/spdlog/archive/refs/tags/v$(SPDLOG_VERSION).tar.gz
 
-build-player: $(PLAYER_FILES)
-	docker build player -t $(IMAGE_PLAYER_NAME):$(IMAGE_VERSION) \
-		&& docker build player -t $(IMAGE_PLAYER_NAME):latest
+SOURCES := $(wildcard src/*.cpp)
+OBJECTS := $(patsubst %.cpp,build/%.o,$(SOURCES))
+
+.PHONY: all clean build build-player build-snapclient build-snapserver build-images publish-images prepare
+
+include/vlcpp:
+	wget --no-check-certificate $(LIBVLCPP_URL) -O $(LIBVLCPP_FILENAME).tar.gz
+	tar xzf $(LIBVLCPP_FILENAME).tar.gz
+	mkdir -p $@
+	mv $(LIBVLCPP_FILENAME)/vlcpp include
+	rm -rf $(LIBVLCPP_FILENAME) $(LIBVLCPP_FILENAME).tar.gz
+
+include/spdlog:
+	wget --no-check-certificate $(SPDLOG_URL) -O $(SPDLOG_FILENAME).tar.gz
+	tar xzf $(SPDLOG_FILENAME).tar.gz
+	mkdir -p $@
+	mv $(SPDLOG_FILENAME)/$@ include
+	rm -rf $(SPDLOG_FILENAME) $(SPDLOG_FILENAME).tar.gz
+
+clean:
+	rm -rf dist/ build/ include/
+
+prepare: include/vlcpp include/spdlog
+	mkdir -p dist
+	mkdir -p build/src
+
+build/%.o: %.cpp build.nix | prepare
+	g++ -v -std=c++17 -pthread -DAPP_NAME="\"$(APP_NAME)\"" -DAPP_VERSION="\"$(APP_VERSION)\"" -c -o $@ $< -Iinclude $(CXXFLAGS)
+
+dist/oremi-player: $(OBJECTS) build.nix
+	g++ -v -std=c++17 -pthread -DAPP_NAME="\"$(APP_NAME)\"" -DAPP_VERSION="\"$(APP_VERSION)\"" -o $@ $(OBJECTS) -lvlc $(LDFLAGS)
+
+build: dist/oremi-player
+
+build/images/oremi-player-build.tar.gz: build.nix
+	nix-build --out-link $@ $<
+	docker load < $@
+
+build/images/oremi-player-base.tar.gz: image.nix
+	nix-build --out-link $@ $<
+	docker load < $@
+
+build-player: $(PLAYER_FILES) build/images/oremi-player-build.tar.gz build/images/oremi-player-base.tar.gz
+	docker build . -t $(IMAGE_PLAYER_NAME):$(IMAGE_VERSION) \
+		&& docker build . -t $(IMAGE_PLAYER_NAME):latest
 
 build-snapclient: $(SNAPCLIENT_FILES)
 	docker build snapclient -t $(IMAGE_SNAPCLIENT_NAME):$(IMAGE_VERSION) \
@@ -27,9 +75,9 @@ build-snapserver: $(SNAPSERVER_FILES)
 build-images: build-player build-snapclient build-snapserver
 
 publish-images: build-images
-	git commit . -m "Release $(IMAGE_VERSION)"
+	git commit . -m "Release $(APP_NAME) $(APP_VERSION) with Snapcast $(IMAGE_VERSION)"
 	git tag v$(IMAGE_VERSION)
-	docker push $(IMAGE_PLAYER_NAME):$(IMAGE_VERSION)
+	docker push $(IMAGE_PLAYER_NAME):$(APP_VERSION)
 	docker push $(IMAGE_PLAYER_NAME):latest
 	docker push $(IMAGE_SNAPCLIENT_NAME):$(IMAGE_VERSION)
 	docker push $(IMAGE_SNAPCLIENT_NAME):latest
