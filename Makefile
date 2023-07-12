@@ -1,5 +1,5 @@
 APP_NAME = Oremi Player
-APP_VERSION = 1.0.0
+APP_VERSION = 1.1.0
 
 IMAGE_VERSION := 1.0.0
 IMAGE_PLAYER_NAME := demsking/oremi-player
