@@ -245,6 +245,7 @@ public:
       // Sending metadata change event
       auto playingMedia = m_media_player.media();
       if (playingMedia != nullptr) {
+        send_state_change(m_media_player.state());
         send_metadata_change(playingMedia);
       }
 
@@ -415,6 +416,8 @@ void PlayerServer::run() {
 
 void PlayerServer::stop() {
   spdlog::info("Stopping...");
+
+  d->m_media_list_player.stop();
   d->m_server.stop_listening();
 
   for (auto& hdl : d->m_connections) {

@@ -151,7 +151,8 @@ The following methods are available on the server:
   Gets the state of the media player.
 
   **Return Value**
-  - (string): The current state of the media player. Possible values are: `playing`, `paused`, `stopped`
+  - (string): The current state of the media player. Possible values are:
+    `opening`, `buffering`, `playing`, `paused`, `stopped`, `ended`, `error`.
 
 - `Metadata`
   Gets the metadata of the current media.
@@ -226,10 +227,8 @@ The following notifications are sent by the server:
 
   **Parameters**
   - `state` (string): The new state of the media player.
-    Possible values are:
-      - `playing`
-      - `paused`
-      - `stopped`
+    Possible values are: `opening`, `buffering`, `playing`, `paused`,
+    `stopped`, `ended`, `error`.
 
 - `PositionChange`
   Indicates that the position of the media player has changed.
@@ -265,12 +264,13 @@ The following notifications are sent by the server:
   Indicates that the metadata of the media player has changed.
 
   **Parameters**
-  - `album` (string): The album name.
-  - `artist` (string): The artist name.
-  - `artwork_url` (string): The URL to the artwork.
-  - `length` (int): The length of the media in seconds.
-  - `media_url` (string): The URL to the media.
   - `title` (string): The title of the media.
+  - `description` (string): The description of the media.
+  - `media_url` (string): The URL to the media. This parameter is mandatory.
+  - `artwork_url` (string): The URL to the artwork.
+  - `album_title` (string): The title of the album.
+  - `album_artist` (string): The album artist.
+  - `artist_name` (string): The name of the artist.
 
 ## License
 
