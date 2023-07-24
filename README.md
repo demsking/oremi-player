@@ -1,10 +1,9 @@
-# Oremi Player Server
+# Oremi Player
 
 [![Buy me a beer](https://img.shields.io/badge/Buy%20me-a%20beer-1f425f.svg)](https://www.buymeacoffee.com/demsking)
 
-Oremi Player Server is a [Mopidy](https://mopidy.com/) and
-[Snapcast](https://github.com/badaix/snapcast) servers
-preconfigured for the [Oremi Personal Assistant](https://gitlab.com/demsking/oremi).
+Oremi Player is a VLC audio server. It can be combined with
+[Oremi Snapcast](https://github.com/badaix/snapcast).
 
 ## Start
 
@@ -14,7 +13,7 @@ preconfigured for the [Oremi Personal Assistant](https://gitlab.com/demsking/ore
 docker run -d \
   --name oremi-player \
   -p 3765:3765 \
-  -v /run/user/1000/pulse:/run/user/1000/pulse \
+  -v $XDG_RUNTIME_DIR/pulse:/run/user/1000/pulse \
   -v /etc/localtime:/etc/localtime:ro \
   demsking/oremi-player
 ```
@@ -37,7 +36,7 @@ docker run -d \
       environment:
         ENABLE_SNAPCAST: 'true'
       volumes:
-        - /run/user/1000/pulse:/run/user/1000/pulse
+        - $XDG_RUNTIME_DIR/pulse:/run/user/1000/pulse
         - /etc/localtime:/etc/localtime:ro
         - /tmp/snapfifo:/tmp/snapfifo
       ports:
