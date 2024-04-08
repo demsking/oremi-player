@@ -2,6 +2,8 @@ FROM alpine:3.18.2
 
 ENV SNAPCAST_PORT=1704
 ENV SNAPCAST_DEVICE=default
+ENV SNAPCAST_INSTANCE_ID=
+ENV SNAPCAST_LATENCY=0
 
 RUN apk add --no-cache --upgrade snapcast alsa-utils
 

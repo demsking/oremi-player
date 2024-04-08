@@ -3,4 +3,9 @@
 set +e
 
 /usr/bin/snapclient -l
-/usr/bin/snapclient -h $SNAPCAST_HOST -p $SNAPCAST_PORT -s "$SNAPCAST_DEVICE"
+/usr/bin/snapclient \
+  --host $SNAPCAST_HOST \
+  --port $SNAPCAST_PORT \
+  --instance $SNAPCAST_INSTANCE_ID \
+  --soundcard "$SNAPCAST_DEVICE" \
+  --latency $SNAPCAST_LATENCY
