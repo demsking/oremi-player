@@ -1,7 +1,7 @@
 APP_NAME = Oremi Player
 APP_VERSION = 1.2.0
 
-IMAGE_VERSION := 1.0.0
+IMAGE_VERSION := 1.1.0
 IMAGE_PLAYER_NAME := demsking/oremi-player
 IMAGE_SNAPCLIENT_NAME := demsking/oremi-snapclient
 IMAGE_SNAPSERVER_NAME := demsking/oremi-snapserver
@@ -72,9 +72,9 @@ build-snapserver: $(SNAPSERVER_FILES)
 	docker build snapserver -t $(IMAGE_SNAPSERVER_NAME):$(IMAGE_VERSION) \
 		&& docker build snapserver -t $(IMAGE_SNAPSERVER_NAME):latest
 
-build-images: build-player build-snapclient build-snapserver
+images: build-player build-snapclient build-snapserver
 
-publish-images: build-images
+publish: build-images
 	git commit . -m "Release $(APP_NAME) $(APP_VERSION) with Snapcast images $(IMAGE_VERSION)"
 	git tag v$(APP_VERSION)
 	docker push $(IMAGE_PLAYER_NAME):$(APP_VERSION)
