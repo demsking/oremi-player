@@ -3,7 +3,7 @@
 [![Buy me a beer](https://img.shields.io/badge/Buy%20me-a%20beer-1f425f.svg)](https://www.buymeacoffee.com/demsking)
 
 Oremi Player is a VLC audio server. It can be combined with
-[Oremi Snapcast](https://github.com/badaix/snapcast).
+[Snapcast](https://github.com/badaix/snapcast).
 
 ## Start
 
@@ -40,7 +40,7 @@ docker run -d \
         - /etc/localtime:/etc/localtime:ro
         - /tmp/snapfifo:/tmp/snapfifo
       ports:
-        - 6680:6680
+        - 3765:3765
     snapserver:
       image: demsking/oremi-snapserver
       volumes:
@@ -170,6 +170,8 @@ The following methods are available on the server:
   Opens a media list.
 
   **Parameters**
+  List of objects with parameters:
+
   - `title` (string): The title of the media.
   - `description` (string): The description of the media.
   - `media_url` (string): The URL to the media. This parameter is mandatory.
